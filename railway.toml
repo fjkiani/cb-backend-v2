@@ -1,7 +1,9 @@
 [build]
 builder = "NIXPACKS"
+buildCommand = "npm install"
 
 [deploy]
+startCommand = "npm start"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
@@ -9,6 +11,7 @@ restartPolicyType = "ON_FAILURE"
 [env]
 NODE_ENV = "production"
 PORT = "3000"
+NODE_VERSION = "18"
 
 # Railway will read from project environment variables
 # Make sure to set these in Railway dashboard:
