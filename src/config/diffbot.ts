@@ -1,0 +1,23 @@
+export const DIFFBOT_FIELDS = [
+  'title',
+  'text',
+  'html',
+  'date',
+  'estimatedDate',
+  'author',
+  'authorUrl',
+  'pageUrl',
+  'siteName',
+  'publisherRegion',
+  'publisherCountry',
+  'sentiment',
+  'tags',
+  'categories',
+  'quotes',
+  'links',
+  'images',
+  'videos',
+  'humanLanguage',
+  'naturalLanguage',
+  'discussion'
+]; 

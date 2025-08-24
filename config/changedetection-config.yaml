@@ -1,0 +1,33 @@
+url: "https://tradingeconomics.com/united-states/news"
+tag: "US-Economic-News"
+
+# Watch settings
+check_frequency: 300  # 5 minutes
+css_selector:
+  - ".news-article"
+  - ".article-title"
+  - ".article-time"
+
+# Ignore elements
+exclude_selector:
+  - ".view-count"
+  - ".advertisement"
+
+# Webhook configuration
+notification:
+  webhook:
+    url: "http://localhost:3000/webhook"
+    method: "POST"
+    headers:
+      Content-Type: "application/json"
+    payload_format: |
+      {
+        "url": "{{url}}",
+        "timestamp": "{{timestamp}}",
+        "selector": "{{selector}}",
+        "content": {
+          "title": "{{element-text|css:.article-title}}",
+          "text": "{{element-text|css:.news-article}}",
+          "published_date": "{{element-text|css:.article-time}}"
+        }
+      } 
