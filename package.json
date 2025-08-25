@@ -1,6 +1,8 @@
 {
   "name": "market-news-scraper-backend",
   "version": "1.0.0",
+  "description": "Node.js backend with Gemini AI for market analysis",
+  "main": "src/server.js",
   "private": true,
   "type": "module",
   "engines": {

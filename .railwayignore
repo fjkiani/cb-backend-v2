@@ -1,0 +1,33 @@
+# Force exclude all Python files
+*.py
+**/*.py
+src/**/*.py
+backend/**/*.py
+
+# Exclude specific Python files
+src/scripts/monitor_source.py
+src/services/diffbot/scraper.py
+src/services/diffbot/convert_markdown.py
+src/services/diffbot/firecrawl.py
+
+# Exclude logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+
+# Exclude development files
+.env*
+!.env.example
+
+# Exclude IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Exclude test files (optional)
+tests/
+*_test.js
+*_spec.js
