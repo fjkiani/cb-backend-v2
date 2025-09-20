@@ -85,6 +85,24 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Cron job monitoring endpoint
+app.get('/api/cron/status', (req, res) => {
+  if (scheduler) {
+    const status = scheduler.getStatus();
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      cronJob: status
+    });
+  } else {
+    res.json({
+      status: 'error',
+      message: 'Scheduler not initialized',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Initialize services lazily to avoid cold start issues in Vercel
 let storage;
 
