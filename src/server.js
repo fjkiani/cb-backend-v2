@@ -79,8 +79,8 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     services: {
       redis: !!process.env.REDIS_URL,
-      supabase: !!process.env.VITE_SUPABASE_URL,
-      diffbot: !!process.env.VITE_DIFFBOT_TOKEN
+      supabase: !!(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL),
+      diffbot: !!(process.env.DIFFBOT_TOKEN || process.env.VITE_DIFFBOT_TOKEN)
     }
   });
 });
