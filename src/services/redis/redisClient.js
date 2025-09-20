@@ -66,7 +66,7 @@ let isRedisAvailable = false;
 export function getRedisClient() {
   if (!redisClient) {
     // Check if we have a valid Redis URL
-    if (process.env.REDIS_URL && process.env.REDIS_URL.startsWith('redis://')) {
+    if (process.env.REDIS_URL && process.env.REDIS_URL.startsWith('redis://') && !process.env.REDIS_URL.includes('default.upstash.io')) {
       try {
         logger.info('Initializing Redis client with config:', {
           url: process.env.REDIS_URL ? 'Using REDIS_URL' : 'localhost:6379',
@@ -83,6 +83,8 @@ export function getRedisClient() {
             stack: err.stack
           });
           isRedisAvailable = false;
+          // Switch to in-memory cache on error
+          redisClient = new MemoryCache();
         });
 
         redisClient.on('connect', () => {
@@ -100,24 +102,26 @@ export function getRedisClient() {
           isRedisAvailable = true;
         });
 
-        // Test connection
-        redisClient.ping().then(() => {
+        // Test connection with timeout
+        Promise.race([
+          redisClient.ping(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis connection timeout')), 5000))
+        ]).then(() => {
           isRedisAvailable = true;
-        }).catch(() => {
+        }).catch((error) => {
+          logger.warn('Redis connection failed, falling back to in-memory cache:', error.message);
           isRedisAvailable = false;
+          redisClient = new MemoryCache();
         });
 
       } catch (error) {
         logger.error('Failed to initialize Redis client:', error);
         isRedisAvailable = false;
+        redisClient = new MemoryCache();
       }
     } else {
-      logger.warn('No valid Redis URL found, using in-memory cache fallback');
+      logger.warn('No valid Redis URL found or using fake URL, using in-memory cache fallback');
       isRedisAvailable = false;
-    }
-
-    // If Redis is not available, use in-memory cache
-    if (!isRedisAvailable) {
       redisClient = new MemoryCache();
     }
   }
