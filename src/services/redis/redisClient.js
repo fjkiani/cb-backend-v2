@@ -1,6 +1,39 @@
 import Redis from 'ioredis';
 import logger from '../../logger.js';
 
+// In-memory cache fallback for when Redis is not available
+class MemoryCache {
+  constructor() {
+    this.cache = new Map();
+    this.ttl = new Map();
+  }
+
+  async get(key) {
+    const ttl = this.ttl.get(key);
+    if (ttl && Date.now() > ttl) {
+      this.cache.delete(key);
+      this.ttl.delete(key);
+      return null;
+    }
+    return this.cache.get(key) || null;
+  }
+
+  async set(key, value, ttlSeconds = 3600) {
+    this.cache.set(key, value);
+    this.ttl.set(key, Date.now() + (ttlSeconds * 1000));
+  }
+
+  async del(key) {
+    this.cache.delete(key);
+    this.ttl.delete(key);
+  }
+
+  async quit() {
+    this.cache.clear();
+    this.ttl.clear();
+  }
+}
+
 // Redis configuration
 const redisConfig = process.env.REDIS_URL ? {
   url: process.env.REDIS_URL,
@@ -28,36 +61,65 @@ const redisConfig = process.env.REDIS_URL ? {
 };
 
 let redisClient = null;
+let isRedisAvailable = false;
 
 export function getRedisClient() {
   if (!redisClient) {
-    logger.info('Initializing Redis client with config:', {
-      url: process.env.REDIS_URL ? 'Using REDIS_URL (Upstash)' : 'localhost:6379',
-      usingTLS: !!redisConfig.tls
-    });
-    
-    redisClient = new Redis(redisConfig);
+    // Check if we have a valid Redis URL
+    if (process.env.REDIS_URL && process.env.REDIS_URL.startsWith('redis://')) {
+      try {
+        logger.info('Initializing Redis client with config:', {
+          url: process.env.REDIS_URL ? 'Using REDIS_URL' : 'localhost:6379',
+          usingTLS: !!redisConfig.tls
+        });
+        
+        redisClient = new Redis(redisConfig);
 
-    redisClient.on('error', (err) => {
-      logger.error('Redis error:', {
-        message: err.message,
-        code: err.code,
-        command: err.command,
-        stack: err.stack
-      });
-    });
+        redisClient.on('error', (err) => {
+          logger.error('Redis error:', {
+            message: err.message,
+            code: err.code,
+            command: err.command,
+            stack: err.stack
+          });
+          isRedisAvailable = false;
+        });
 
-    redisClient.on('connect', () => {
-      logger.info('Redis connected successfully');
-    });
+        redisClient.on('connect', () => {
+          logger.info('Redis connected successfully');
+          isRedisAvailable = true;
+        });
 
-    redisClient.on('reconnecting', () => {
-      logger.info('Redis reconnecting...');
-    });
+        redisClient.on('reconnecting', () => {
+          logger.info('Redis reconnecting...');
+          isRedisAvailable = false;
+        });
 
-    redisClient.on('ready', () => {
-      logger.info('Redis client is ready');
-    });
+        redisClient.on('ready', () => {
+          logger.info('Redis client is ready');
+          isRedisAvailable = true;
+        });
+
+        // Test connection
+        redisClient.ping().then(() => {
+          isRedisAvailable = true;
+        }).catch(() => {
+          isRedisAvailable = false;
+        });
+
+      } catch (error) {
+        logger.error('Failed to initialize Redis client:', error);
+        isRedisAvailable = false;
+      }
+    } else {
+      logger.warn('No valid Redis URL found, using in-memory cache fallback');
+      isRedisAvailable = false;
+    }
+
+    // If Redis is not available, use in-memory cache
+    if (!isRedisAvailable) {
+      redisClient = new MemoryCache();
+    }
   }
   return redisClient;
 }
