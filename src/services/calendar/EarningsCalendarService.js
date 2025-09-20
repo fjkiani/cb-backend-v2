@@ -380,5 +380,4 @@ export class EarningsCalendarService {
     }
 }
 
-// Export the class for conditional instantiation
-export { EarningsCalendarService }; 
+// Class is already exported above with 'export class EarningsCalendarService' 
