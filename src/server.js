@@ -201,7 +201,7 @@ app.get('/api/test-diffbot', async (req, res) => {
     const response = await axios.get('https://api.diffbot.com/v3/analyze', {
       params: {
         url: targetUrl,
-        token: process.env.VITE_DIFFBOT_TOKEN,
+        token: process.env.DIFFBOT_TOKEN || process.env.VITE_DIFFBOT_TOKEN,
         fields: '*',
         discussion: true,
         timeout: 30000
