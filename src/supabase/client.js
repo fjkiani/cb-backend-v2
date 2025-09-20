@@ -14,15 +14,15 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 console.log('Environment Check:', {
   allEnvKeys: Object.keys(process.env),
   supabaseVars: {
-    url: process.env.VITE_SUPABASE_URL,
-    key: process.env.VITE_SUPABASE_ANON_KEY,
+    url: process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+    key: process.env.SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY,
   },
   dirname: __dirname,
   envPath: path.resolve(__dirname, '../../../.env')
 });
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Supabase Config:', {
