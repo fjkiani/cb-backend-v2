@@ -380,5 +380,5 @@ export class EarningsCalendarService {
     }
 }
 
-// Export an instance
-export default new EarningsCalendarService(); 
+// Export the class for conditional instantiation
+export { EarningsCalendarService }; 
