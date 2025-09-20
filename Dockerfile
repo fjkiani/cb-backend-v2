@@ -2,7 +2,18 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Prevent Puppeteer from downloading Chrome during npm ci
+# Install system dependencies for Chrome
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
+# Tell Puppeteer to use the installed Chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 # Install production deps without running lifecycle scripts
@@ -14,9 +25,6 @@ COPY . .
 
 ENV NODE_ENV=production
 ENV PORT=3000
-
-# Install Chrome explicitly for Puppeteer at runtime
-RUN npx puppeteer browsers install chrome
 
 EXPOSE 3000
 
