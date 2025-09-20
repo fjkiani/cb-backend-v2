@@ -3,8 +3,8 @@ import logger from '../logger.js';
 import { EconomicCalendarService } from '../services/calendar/EconomicCalendarService.js';
 // Import the shared Google Genai service
 import { googleGenaiService } from './analysis.js'; 
-// Import the Earnings Calendar service
-import earningsCalendarService from '../services/calendar/EarningsCalendarService.js';
+// Import the Earnings Calendar service class (not instance)
+import { EarningsCalendarService } from '../services/calendar/EarningsCalendarService.js';
 
 const router = express.Router();
 
@@ -16,6 +16,15 @@ try {
     logger.error('Failed to instantiate EconomicCalendarService in routes:', error);
     // If the service fails, the routes using it won't work.
     calendarService = null; 
+}
+
+// Instantiate the Earnings Calendar service conditionally
+let earningsCalendarService;
+try {
+    earningsCalendarService = new EarningsCalendarService();
+} catch (error) {
+    logger.error('Failed to instantiate EarningsCalendarService:', error);
+    earningsCalendarService = null;
 }
 
 // GET /api/calendar/events
