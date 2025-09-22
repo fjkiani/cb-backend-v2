@@ -292,7 +292,7 @@ router.post('/earnings/analyze', async (req, res) => {
             logger.info(`Skipping LLM analysis for ${symbol} - no estimate provided.`);
              return res.json({ 
                 symbol: symbol,
-                analysis: 'N/A (No Estimate)' 
+                analysis: `Analysis unavailable for ${symbol}: No earnings estimate available for analysis. Historical data may still be available but cannot provide trend analysis without current quarter estimates.` 
             });
         }
         
