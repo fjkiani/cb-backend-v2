@@ -207,9 +207,25 @@ try {
 export let googleGenaiService; 
 try {
   googleGenaiService = new GoogleGenaiService(); // Assumes GEMINI_API_KEY is set
+  logger.info('GoogleGenaiService initialized successfully');
 } catch (error) {
   logger.error('Failed to instantiate GoogleGenaiService:', error);
-  googleGenaiService = null;
+  // Create a fallback service that returns mock analysis
+  googleGenaiService = {
+    synthesizeOverview: async (themes, summaries) => {
+      logger.warn('Using fallback GoogleGenaiService - returning mock overview');
+      return `Mock Market Overview: ${themes || 'Market analysis unavailable due to missing API key. Please add GEMINI_API_KEY to enable full analysis.'}`;
+    },
+    analyzeEarningsTrend: async (symbol, event, historical, trend, context) => {
+      logger.warn('Using fallback GoogleGenaiService - returning mock earnings analysis');
+      return `Mock Analysis for ${symbol}: Analysis unavailable due to missing GEMINI_API_KEY. Historical data shows ${historical?.length || 0} quarters, trend data ${trend ? 'available' : 'unavailable'}.`;
+    },
+    generateText: async (prompt) => {
+      logger.warn('Using fallback GoogleGenaiService - returning mock text');
+      return { success: true, text: 'Mock analysis due to missing API key', error: null };
+    }
+  };
+  logger.info('Fallback GoogleGenaiService created');
 }
 
 // --- New Market Overview Endpoint ---
