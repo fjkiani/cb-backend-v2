@@ -20,6 +20,7 @@ try {
 
 // Instantiate the Earnings Calendar service conditionally
 let earningsCalendarService;
+logger.info('Attempting to initialize EarningsCalendarService...');
 try {
     earningsCalendarService = new EarningsCalendarService();
     logger.info('EarningsCalendarService initialized successfully');
@@ -53,6 +54,7 @@ try {
         fetchHistoricalEarnings: async () => [],
         fetchEarningsTrendData: async () => null
     };
+    logger.info('Fallback earnings service created');
 }
 
 // GET /api/calendar/events
@@ -234,6 +236,11 @@ Keep the explanation concise (2-4 sentences) and focused strictly on information
 // GET /api/calendar/earnings
 router.get('/earnings', async (req, res) => {
     logger.info('GET /api/calendar/earnings (FMP) handler reached');
+    logger.info('Earnings calendar service status:', { 
+        isNull: earningsCalendarService === null, 
+        isUndefined: earningsCalendarService === undefined,
+        hasFetchEarnings: earningsCalendarService?.fetchEarnings ? 'yes' : 'no'
+    });
 
     if (!earningsCalendarService) {
         logger.error('Earnings calendar service (FMP) is not available.');
