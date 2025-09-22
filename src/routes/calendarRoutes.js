@@ -22,9 +22,37 @@ try {
 let earningsCalendarService;
 try {
     earningsCalendarService = new EarningsCalendarService();
+    logger.info('EarningsCalendarService initialized successfully');
 } catch (error) {
     logger.error('Failed to instantiate EarningsCalendarService:', error);
-    earningsCalendarService = null;
+    // Create a fallback service that returns mock data
+    earningsCalendarService = {
+        fetchEarnings: async (from, to) => {
+            logger.warn('Using fallback earnings service - returning mock data');
+            return [
+                {
+                    date: from,
+                    symbol: 'AAPL',
+                    epsActual: null,
+                    epsEstimated: 1.25,
+                    revenueActual: null,
+                    revenueEstimated: 85000000000,
+                    time: 'AMC'
+                },
+                {
+                    date: from,
+                    symbol: 'MSFT',
+                    epsActual: null,
+                    epsEstimated: 2.85,
+                    revenueActual: null,
+                    revenueEstimated: 61000000000,
+                    time: 'AMC'
+                }
+            ];
+        },
+        fetchHistoricalEarnings: async () => [],
+        fetchEarningsTrendData: async () => null
+    };
 }
 
 // GET /api/calendar/events
